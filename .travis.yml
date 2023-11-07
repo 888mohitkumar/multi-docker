@@ -1,0 +1,16 @@
+sudo: required
+language: generic
+services:
+  - docker
+#before install we are going to build a test version of our project
+before_install:
+  - docker build -t 888mohitkumar/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true 888mohitkumar/react-test npm run test
+
+after_success:
+  - docker build -t 888mohitkumar/multi-client ./client
+  - docker build -t 888mohitkumar/multi-nginx ./nginx
+  - docker build -t 888mohitkumar/multi-server ./server
+  - docker build -t 888mohitkumar/multi-worker ./worker
