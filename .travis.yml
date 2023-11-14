@@ -1,23 +1,23 @@
 sudo: required
 language: generic
+
 services:
   - docker
-#before install we are going to build a test version of our project
+
 before_install:
   - docker build -t 888mohitkumar/react-test -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run -e CI=true 888mohitkumar/react-test npm run test
+  - docker run -e CI=true 888mohitkumar/react-test npm test
 
 after_success:
-  # docker build creation
   - docker build -t 888mohitkumar/multi-client ./client
   - docker build -t 888mohitkumar/multi-nginx ./nginx
   - docker build -t 888mohitkumar/multi-server ./server
   - docker build -t 888mohitkumar/multi-worker ./worker
-  # docker hub login
+  # Log in to the docker CLI
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-  # push the images to docker hub
+  # Take those images and push them to docker hub
   - docker push 888mohitkumar/multi-client
   - docker push 888mohitkumar/multi-nginx
   - docker push 888mohitkumar/multi-server
@@ -25,11 +25,11 @@ after_success:
 
 deploy:
   provider: elasticbeanstalk
-  region: "ap-south-1"
-  app: "complex"
-  env: "Complex-env"
-  bucket_name: "elasticbeanstalk-ap-south-1-932627579042"
-  bucket_path: "docker-multi"
+  region: 'ap-south-1'
+  app: 'complex'
+  env: 'Complex-env'
+  bucket_name: 'elasticbeanstalk-ap-south-1-932627579042'
+  bucket_path: 'multi-docker'
   on:
     branch: master
   access_key_id: $AWS_ACCESS_KEY
